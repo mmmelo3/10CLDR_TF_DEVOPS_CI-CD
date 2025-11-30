@@ -3,53 +3,92 @@ name: DevOps Trabalho - CI/CD Pipeline
 on:
   push:
     branches: ["main"]
-  # Adiciona botão para rodar manualmente na aba Actions
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build-and-deploy:
+  # --- STEP 1: QUALIDADE ---
+  quality:
+    name: 1. Qualidade e Testes
     runs-on: ubuntu-latest
-
     steps:
-      # --- STEP 1: CHECKOUT & SETUP ---
-      - name: 1. Checkout do Código
+      - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
+      
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
+          
       - name: Instalar Dependências
         run: npm ci
-
-      # --- STEP 2: QUALIDADE & TESTES ---
-      - name: 2.1 Verificação de Código (Lint)
+        
+      - name: Lint (Padronização)
         run: npm run lint
-
-      - name: 2.2 Testes de Integração
-        # Importante: Requer que você tenha adicionado o script "test" no package.json
+        
+      - name: Testes de Integração
         run: npm run test
 
-      # --- STEP 3: BUILD & DEPLOY ---
-      - name: 3. Build da Aplicação
+  # --- STEP 2: BUILD ---
+  build:
+    name: 2. Build da Aplicação
+    needs: quality # SÓ RODA SE A QUALIDADE PASSAR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Instalar Dependências
+        run: npm ci
+        
+      - name: Build do React
         run: npm run build
+        
+      # SALVAR O SITE PRONTO (ARTEFATO) PARA O PRÓXIMO JOB
+      - name: Upload do Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-arquivos
+          path: dist
+          retention-days: 1
 
-      - name: Deploy para GitHub Pages
+  # --- STEP 3: DEPLOY ---
+  deploy:
+    name: 3. Deploy (GH Pages)
+    needs: build # SÓ RODA SE O BUILD PASSAR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      # BAIXAR O SITE QUE O JOB ANTERIOR CRIOU
+      - name: Download do Build
+        uses: actions/download-artifact@v4
+        with:
+          name: site-arquivos
+          path: dist
+          
+      - name: Publicar no GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: dist
 
-      # --- STEP 4: SMOKE TEST (Verificar se está no ar) ---
-      - name: 4. Smoke Test (Health Check)
+  # --- STEP 4: SMOKE TEST ---
+  smoke-test:
+    name: 4. Smoke Test
+    needs: deploy # SÓ RODA DEPOIS DE PUBLICAR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verificar se está no ar
         run: |
-          echo "Aguardando propagação do deploy..."
-          sleep 15
-          echo "Testando conexão com o site..."
-          # O comando curl tenta acessar o site. 
-          # Se der erro 404, o pipeline falha automaticamente.
-          # A flag -I pega apenas o cabeçalho e --fail avisa se der erro.
+          echo "Aguardando propagação do DNS..."
+          sleep 30
+          echo "Testando URL..."
           curl --fail -I https://felipebcarlos.github.io/10CLDR_TF_DEVOPS_CI-CD/
