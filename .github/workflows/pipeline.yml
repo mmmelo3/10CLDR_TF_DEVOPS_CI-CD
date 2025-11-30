@@ -1,4 +1,4 @@
-name: 10CLDR - Trabalho Final DevOps - CI/CD Pipeline
+name: DevOps Trabalho - CI/CD Pipeline
 
 on:
   push:
@@ -24,9 +24,13 @@ jobs:
       - name: Instalar Dependências
         run: npm ci
 
-      # --- STEP 2: QUALIDADE (LINT) ---
-      - name: 2. Verificação de Código (Lint)
+      # --- STEP 2: QUALIDADE & TESTES ---
+      - name: 2.1 Verificação de Código (Lint)
         run: npm run lint
+
+      - name: 2.2 Testes de Integração
+        # Importante: Requer que você tenha adicionado o script "test" no package.json
+        run: npm run test
 
       # --- STEP 3: BUILD & DEPLOY ---
       - name: 3. Build da Aplicação
@@ -36,3 +40,14 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: dist
+
+      # --- STEP 4: SMOKE TEST (Verificar se está no ar) ---
+      - name: 4. Smoke Test (Health Check)
+        run: |
+          echo "Aguardando propagação do deploy..."
+          sleep 15
+          echo "Testando conexão com o site..."
+          # O comando curl tenta acessar o site. 
+          # Se der erro 404, o pipeline falha automaticamente.
+          # A flag -I pega apenas o cabeçalho e --fail avisa se der erro.
+          curl --fail -I https://felipebcarlos.github.io/10CLDR_TF_DEVOPS_CI-CD/
