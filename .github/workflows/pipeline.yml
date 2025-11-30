@@ -122,10 +122,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: OWASP ZAP - Baseline Scan
-        uses: zaproxy/action-baseline@v0.12.0
+        uses: zaproxy/action-baseline@v0.14.0 # Atualizado para v0.14.0 para corrigir erro de artefato
         with:
           target: 'https://felipebcarlos.github.io/10CLDR_TF_DEVOPS_CI-CD/'
           rules_file_name: '.zap/rules.tsv' # Opcional
           cmd_options: '-a' # Inclui regras alfa passivas
           allow_issue_writing: false # Não abre Issues no repo (opcional)
-          fail_action: false # Não quebra o pipeline se achar alertas (ideal para aprendizado)
+          fail_action: false # Não quebra o pipeline se achar alertas
+          artifact_name: 'zap-scan-relatorio' # Nome explicito para evitar erro "zap_scan invalid"
