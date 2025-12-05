@@ -72,14 +72,17 @@ git clone [https://github.com/felipebcarlos/10CLDR_TF_DEVOPS_CI-CD.git](https://
 ```bash
 cd 10CLDR_TF_DEVOPS_CI-CD
 npm install
+```
 
 3. Execute o servidor de desenvolvimento:
 ```bash
 npm run dev
+```
 
 O projeto estará disponível em `http://localhost:5173`.
 
 ---
+
 ### OPCIONAL 🔒 Segurança Estática (SAST)
 No arquivo "src/App.jsx", a linha 9 possui uma vulnerabilidade coloca propsitalmente para que o Trivy alerte sobre a existência de uma senha em texto puro diretamente no código da página.
 A linha 9, assim como as linhas 7 e 8 podem ser removidas caso queria ver o comportamento do job de SAST.
