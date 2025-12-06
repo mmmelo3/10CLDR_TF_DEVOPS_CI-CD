@@ -32,6 +32,7 @@ Faça qualquer alteração no código (ex: edite o `README.md` ou o `App.jsx`) e
 
 <details>
 <summary>Clique aqui para ver o passo a passo detalhado</summary>
+
 ### 1. Copiar o Repositório (Fork)
 Clique no botão **"Fork"** no canto superior direito desta página para criar uma cópia deste repositório na sua conta do GitHub.
 
