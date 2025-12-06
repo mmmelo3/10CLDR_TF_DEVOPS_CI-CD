@@ -11,6 +11,7 @@
     "test": "echo 'Simulando Testes de Integracao...' && exit 0"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
